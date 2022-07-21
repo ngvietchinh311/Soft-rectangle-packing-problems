@@ -1,3 +1,4 @@
+import random
 import sys
 from pytube import YouTube, Channel
 import itertools
@@ -5,12 +6,26 @@ import utils.utilities as utils
 
 
 def get_copy_version(current_solution):
+    """
+    Get a copy version of the current solution which has type as a list of lists "[[], [], ...]"
+    :param current_solution:
+    :return: list of lists ("[[], [], ...]")
+    """
+
     res = []
-    for k in range(0, n):
-        tmp_res = []
-        for i in range(0, n):
-            tmp_res.append(current_solution[k][i])
-        res.append(tmp_res)
+    n = len(current_solution)
+
+    # for k in range(0, n):
+    #     tmp_res = []
+    #     for i in range(0, n):
+    #         tmp_res.append(current_solution[k][i])
+    #     res.append(tmp_res)
+    # return res
+
+    for i in range(0, n):
+        tmp_val = current_solution[i]
+        res.append(tmp_val)
+
     return res
 
 
@@ -236,7 +251,6 @@ def swap_layer_neighborhood_v2(current_solution):
 
     return res
 
-
 def split_layer_neighbourhood(current_solution):
         """
         Find all neighbors of current solution by splitting layer into 2 smaller layers
@@ -278,7 +292,6 @@ def split_layer_neighbourhood(current_solution):
                         res.append(tmp_x)
 
         return res
-
 
 def merge_layer_neighbourhood_v2(current_solution):
         global n
@@ -325,8 +338,35 @@ def merge_layer_neighbourhood_v2(current_solution):
 
 # get_random_solution()
 
-tmp_list = list(range(1, 11))
+# l = [5, 2, 3, 4, 5, 6, 1]
+#
+# s = list(range(0, 10))
+# s_1 = [5, 2]
+# for i in s_1:
+#     s.remove(i)
+# print(s)
+# i = l[l.index(min(l))]
+# print(i)
+#
+# from local_search_v2 import LocalSearch
+#
+# s_point = [7, 6, 1, 5, 2, 7, 5, 1, 2, 6]
+#
+# ls = LocalSearch("U", "01")
+# check = ls.calculate_solution_value(s_point)
+# nei = ls.change_layer_neighborhood(s_point)
+# nei.extend(ls.swap_layer_neighborhood(s_point))
+# for n in nei:
+#     val = ls.calculate_solution_value(n)
+#     if val < check:
+#         print(val)
+# print(len(nei))
 
-print(tmp_list)
-tmp_list.pop(0)
-print(tmp_list)
+import math
+from random import seed
+from random import random
+
+seed(1)
+
+for i in range(50):
+    print(math.floor(random() * 50))

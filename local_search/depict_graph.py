@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 from local_search_v2 import LocalSearch
 import utils.utilities as utils
+import numpy as np
 
 
 def get_correlation_between_number_of_iterations_and_the_results(class_name: str, class_num: str, n_iterations=50):
@@ -40,14 +41,14 @@ def get_correlation_between_number_of_iterations_and_the_results(class_name: str
             current_pt = best_tmp_current_pt
             best = tmp_best
         else:
-            continue
+            break
 
     res.append(best)
 
     return [x, y]
 
 
-def get_correlation_between_number_of_restarts_and_the_results(class_name: str, class_num: str, n_iterations=20,
+def get_correlation_between_number_of_restarts_and_the_results(class_name: str, class_num: str, n_iterations=3,
                                                                n_restarts=4):
     ls = LocalSearch(class_name, class_num)
 
@@ -110,7 +111,9 @@ def depict_correlation_between_number_of_restarts_and_the_results(class_name, cl
     plt.show()
 
 
-def depict_correlation_between_number_of_iteration_and_the_results(class_name, class_num, n_iterations=50, num_lines=5):
+def depict_correlation_between_number_of_iteration_and_the_results(class_name, class_num, n_iterations=50, num_lines=3):
+    figure, axis = plt.subplots(1, num_lines)
+
     for i in range(0, num_lines):
         data = get_correlation_between_number_of_iterations_and_the_results(class_name=class_name, class_num=class_num,
                                                                             n_iterations=n_iterations)
@@ -118,12 +121,13 @@ def depict_correlation_between_number_of_iteration_and_the_results(class_name, c
         x = data[0]
         y = data[1]
 
-        plt.plot(x, y)
+        print(x)
+        print(y)
+        print("----------------")
 
-    plt.title('Correlation between number of iterations and the results')
-    plt.xlabel('Iteration')
-    plt.ylabel('Result')
+        axis[i].plot(x, y)
+
     plt.show()
 
 
-depict_correlation_between_number_of_iteration_and_the_results('U', '07', n_iterations=50)
+depict_correlation_between_number_of_iteration_and_the_results('MN', '01', n_iterations=4000)
