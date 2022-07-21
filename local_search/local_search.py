@@ -18,12 +18,13 @@ class LocalSearch:
         :param current_solution:
         :return: int (number of layers)
         """
-        res = 0
-        n = self.inp['n']
-        for k in range(0, n):
-            if sum(current_solution[k]) >= 1:
-                res += 1
-        return res
+        tmp_set = set()
+        for i in current_solution:
+            tmp_set.add(current_solution[i])
+
+        print(tmp_set)
+
+        return len(tmp_set)
 
     def calculate_solution_value(self, current_solution):
         """
@@ -31,29 +32,25 @@ class LocalSearch:
         :param current_solution:
         :return: float
         """
-        res = 0
         n = self.inp["n"]
         a = self.inp["a"]
         L1 = self.inp["L1"]
         L2 = self.inp["L2"]
 
-        for k in range(0, n):
-            # Variable hold the layer's area
-            tmp_a = 0
+        # Variable hold the layer's area
+        tmp_a = []
+        for i in range(0, n):
+            tmp_a.append(0)
 
-            # Calculate the layer's area by adding the existing recs in that layer
-            for i in range(0, n):
-                if current_solution[k][i] == 1:
-                    tmp_a += a[i]
-            # Variable hold lengths of recs that in layer 'k + 1'
-            tmp_l = [res]
-            k_height = L2 * tmp_a / (L1 * L2)
+        for i in range(0, n):
+            tmp_a[current_solution[i]] += a[i]
 
-            for i in range(0, n):
-                if current_solution[k][i] == 1:
-                    tmp_l.append(2 * (k_height + (a[i] / k_height)))
+        tmp_res = []
+        for i in range(0, n):
+            k_height = L2 * tmp_a[current_solution[i]] / (L1 * L2)
+            tmp_res.append(2 * (k_height + (a[i] / k_height)))
 
-            res = max(tmp_l)
+        res = max(tmp_res)
 
         return res
 
@@ -65,9 +62,7 @@ class LocalSearch:
         """
         n = self.inp["n"]
         for i in range(0, n):
-            for k in range(0, n):
-                print(current_solution[i][k], end='    ')
-            print()
+            print(current_solution[i], end='    ')
 
     def change_layer_neighborhood(self, current_solution):
         """
@@ -79,16 +74,14 @@ class LocalSearch:
 
         res = []
 
-        for k in range(0, n):
-            for i in range(0, n):
-                if current_solution[k][i] == 1:
-                    for check in range(0, n):
-                        if current_solution[check][i] == 1:
-                            continue
-                        tmp_x = utils.get_copy_version(current_solution)
-                        tmp_x[k][i] = 0
-                        tmp_x[check][i] = 1
-                        res.append(tmp_x)
+        for i in range(0, n):
+            tmp_layer_list = list(range(0, n))
+            tmp_layer_list.remove(current_solution[i])
+            for replace_layer in tmp_layer_list:
+                tmp_x = utils.get_copy_version(current_solution)
+                tmp_x[i] = replace_layer
+                res.append(tmp_x)
+
         return res
 
     def swap_layer_neighborhood(self, current_solution):
@@ -101,35 +94,24 @@ class LocalSearch:
 
         res = []
 
-        layer = {}
-
-        for k in range(0, n):
-            for i in range(0, n):
-                if current_solution[k][i] == 1:
-                    layer.update({i: k})
-
-        res_d = {}
+        recs = {}
 
         for i in range(0, n):
-            res_d.update({i: []})
+            recs.update({i: []})
 
         for i in range(0, n):
             tmp_list = list(range(0, n))
             tmp_list.remove(i)
             for j in tmp_list:
-                if layer[j] == layer[i]:
+                if current_solution[j] == current_solution[i]:
                     continue
-                res_d[i].append(j)
+                recs[i].append(j)
 
         for i in range(0, n):
-            for j in res_d[i]:
+            for j in recs[i]:
                 tmp_x = utils.get_copy_version(current_solution)
-                tmp_x[layer[i]][i] = 0
-                tmp_x[layer[j]][i] = 1
-
-                tmp_x[layer[j]][j] = 0
-                tmp_x[layer[i]][j] = 1
-
+                tmp_x[i] = current_solution[j]
+                tmp_x[j] = current_solution[i]
                 res.append(tmp_x)
 
         return res
@@ -148,54 +130,62 @@ class LocalSearch:
         for k in range(0, n):
             layer_dict.update({k: []})
 
-        for k in range(0, n):
-            for i in range(0, n):
-                if current_solution[k][i] == 1:
-                    layer_dict[k].append(i)
+        for i in range(0, n):
+            layer_dict[current_solution[i]].append(i)
 
         blank_layer = None
         for k in range(0, n):
-            if sum(current_solution[k]) == 0:
+            if len(layer_dict[k]) == 0:
                 blank_layer = k
                 break
         if blank_layer is None:
             return []
 
         for k in range(0, n):
-            layer_length = len(layer_dict[k])
-            if layer_length >= 2:
-                for l in range(0, layer_length + 1):
-                    for sub_set in itertools.combinations(layer_dict[k], l):
-                        if len(sub_set) > int(len(layer_dict[k]) / 2) or len(sub_set) == 0:
+            if len(layer_dict[k]) < 2:
+                continue
+            else:
+                for L in range(0, len(layer_dict[k]) + 1):
+                    for subset in itertools.combinations(layer_dict[k], L):
+                        if len(subset) > len(layer_dict[k]) / 2 or len(subset) == 0:
                             continue
-                        for i in list(sub_set):
-                            tmp_x = utils.get_copy_version(current_solution)
-                            tmp_x[k][i] = 0
-                            tmp_x[blank_layer][i] = 1
 
-                            res.append(tmp_x)
+                        replaced_list = list(subset)
+                        tmp_x = utils.get_copy_version(current_solution)
+                        for tmp_var in replaced_list:
+                            tmp_x[tmp_var] = blank_layer
+                        res.append(tmp_x)
 
         return res
 
     def merge_layer_neighbourhood(self, current_solution):
+        """
+        Find all neighbors of current solution by merging 2 layers
+        :param current_solution:
+        :return: list of solutions
+        """
         n = self.inp['n']
         res = []
 
-        for k in range(0, n):
-            if sum(current_solution[k]) == n:
-                return []
-
-        blank_layer = [0] * n
+        layer_dict = {}
 
         for k in range(0, n):
-            layer_list = list(range(0, n))
-            layer_list.remove(k)
-            for tmp_layer in layer_list:
-                merge_layer = [i + j for i, j in zip(current_solution[k], current_solution[tmp_layer])]
+            layer_dict.update({k: []})
+
+        for i in range(0, n):
+            layer_dict[current_solution[i]].append(i)
+
+        for k in range(0, n):
+            if len(layer_dict[k]) == 0:
+                continue
+            merge_layers = list(range(0, n))
+            merge_layers.remove(k)
+            for tmp_layer in merge_layers:
+                if len(layer_dict[tmp_layer]) == 0:
+                    continue
                 tmp_x = utils.get_copy_version(current_solution)
-                tmp_x[k] = merge_layer
-                tmp_x[tmp_layer] = blank_layer
-
+                for i in layer_dict[tmp_layer]:
+                    tmp_x[i] = k
                 res.append(tmp_x)
 
         return res
@@ -207,8 +197,8 @@ class LocalSearch:
         """
         n = self.inp["n"]
 
-        n_restarts = 20
-        n_iterations = 10
+        n_restarts = 5
+        n_iterations = 5000
 
         res = []
         res_best = 2 * (self.inp["L1"] + self.inp["L2"])
@@ -222,9 +212,6 @@ class LocalSearch:
                 best_tmp_current_pt = current_pt
 
                 neighbours = self.change_layer_neighborhood(tmp_current_pt)
-                # neighbours.extend(self.swap_layer_neighborhood(tmp_current_pt))
-                # neighbours.extend(self.split_layer_neighbourhood(tmp_current_pt))
-                # neighbours.extend(self.merge_layer_neighbourhood(tmp_current_pt))
                 for neighbour in neighbours:
                     value_check = self.calculate_solution_value(neighbour)
                     if value_check < tmp_best:
@@ -242,14 +229,14 @@ class LocalSearch:
                     else:
                         continue
 
-                neighbours = self.split_layer_neighbourhood(tmp_current_pt)
-                for neighbour in neighbours:
-                    value_check = self.calculate_solution_value(neighbour)
-                    if value_check < tmp_best:
-                        tmp_best = value_check
-                        best_tmp_current_pt = neighbour
-                    else:
-                        continue
+                # neighbours = self.split_layer_neighbourhood(tmp_current_pt)
+                # for neighbour in neighbours:
+                #     value_check = self.calculate_solution_value(neighbour)
+                #     if value_check < tmp_best:
+                #         tmp_best = value_check
+                #         best_tmp_current_pt = neighbour
+                #     else:
+                #         continue
 
                 neighbours = self.merge_layer_neighbourhood(tmp_current_pt)
                 for neighbour in neighbours:
@@ -267,20 +254,382 @@ class LocalSearch:
                     break
 
             if best < res_best:
-                print("RE ", turn, ": ", best)
                 res_best = best
             res.append(best)
 
         return min(res)
 
+    def iterated_local_search_VNS(self):
+        """
+        Use VNS(Variable Neighborhood Search) technique to calculate the best solution
+        :return: integer which depict the best solution
+        """
+        n = self.inp["n"]
+
+        n_restarts = 1
+        n_iterations = 100
+
+        res = []
+        res_best = 2 * (self.inp["L1"] + self.inp["L2"])
+        for turn in range(0, n_restarts):
+            start_pt = utils.get_random_solution(n)
+            current_pt = start_pt
+            best = self.calculate_solution_value(start_pt)
+            for i in range(0, n_iterations):
+                tmp_best = best
+                tmp_current_pt = current_pt
+                best_tmp_current_pt = current_pt
+
+                neighbours = self.change_layer_neighborhood(tmp_current_pt)
+                neighbours.extend(self.swap_layer_neighborhood(tmp_current_pt))
+                neighbours.extend(self.merge_layer_neighbourhood(tmp_current_pt))
+                for neighbour in neighbours:
+                    value_check = self.calculate_solution_value(neighbour)
+                    if value_check < tmp_best:
+                        tmp_best = value_check
+                        best_tmp_current_pt = neighbour
+                    else:
+                        continue
+
+                if tmp_best < best:
+                    current_pt = best_tmp_current_pt
+                    best = tmp_best
+                else:
+                    neighbours = self.split_layer_neighbourhood(tmp_current_pt)
+                    for neighbour in neighbours:
+                        value_check = self.calculate_solution_value(neighbour)
+                        if value_check < tmp_best:
+                            tmp_best = value_check
+                            best_tmp_current_pt = neighbour
+                        else:
+                            continue
+
+                    if tmp_best < best:
+                        current_pt = best_tmp_current_pt
+                        best = tmp_best
+
+            if best < res_best:
+                res_best = best
+            res.append(best)
+
+        return min(res)
+
+    def tabu_search(self):
+        """
+        Use Tabu search technique to calculate the best solution.
+        This version will update the tabu list when meet the first neighbour of current neighbour type which
+        is better than the current best solution.
+        :return: integer which depict the best solution
+        """
+
+        def compare_solution(sol_1, sol_2):
+            """
+            Compare 2 solution and point out the difference between them (the positions of the first solution
+            which have different value compared to the second one).
+            This can be described as transition abstraction
+            :return: list of integers (list of transition abstraction)
+            """
+            n_1 = len(sol_1)
+            n_2 = len(sol_2)
+            ret = []
+            if n_1 != n_2:
+                return ret
+
+            for index in range(0, n_1):
+                if sol_1[index] != sol_2[index]:
+                    ret.append(index)
+            return ret
+
+        n = self.inp["n"]
+
+        n_iterations = 300
+
+        # Create a tabu list with fixed size
+        tabu_size = int(n/2)
+        tabu_list = []
+        res = []
+
+        start_pt = utils.get_random_solution(n)
+        current_pt = start_pt
+        best = self.calculate_solution_value(start_pt)
+        stable = 0  # stable index
+        stable_limit = 5    # limit of stable index
+        for i in range(0, n_iterations):
+            tmp_best = best
+            tmp_current_pt = current_pt
+            best_tmp_current_pt = current_pt
+
+            """
+            CHANGE LAYER NEIGHBOURS
+            """
+            neighbours_1 = self.change_layer_neighborhood(tmp_current_pt)
+            for neighbour in neighbours_1:
+                value_check = self.calculate_solution_value(neighbour)
+                if value_check < best:
+                    transitions_abs = compare_solution(current_pt, neighbour)
+                    check_list = []
+                    check_list.extend(tabu_list)
+                    check_list.extend(transitions_abs)
+                    check_list = set(check_list)
+                    if len(check_list) < (len(transitions_abs) + len(tabu_list)):
+                        continue
+
+                    tmp_best = value_check
+                    best_tmp_current_pt = neighbour
+                else:
+                    continue
+
+            if tmp_best < best:
+                """
+                UPDATE RESULT + TABU LIST
+                """
+                transitions_abs = compare_solution(current_pt, best_tmp_current_pt)
+                tabu_list.extend(transitions_abs)
+                for index in range(0, len(tabu_list) - tabu_size):
+                    tabu_list.pop(0)
+
+                current_pt = best_tmp_current_pt
+                best = tmp_best
+                res.append(best)
+            else:
+                """
+                SWAP LAYER NEIGHBOURS
+                """
+                neighbours_2 = self.swap_layer_neighborhood(tmp_current_pt)
+                for neighbour in neighbours_2:
+                    value_check = self.calculate_solution_value(neighbour)
+                    if value_check < tmp_best:
+                        transitions_abs = compare_solution(current_pt, neighbour)
+                        check_list = []
+                        check_list.extend(tabu_list)
+                        check_list.extend(transitions_abs)
+                        check_list = set(check_list)
+                        if len(check_list) < (len(transitions_abs) + len(tabu_list)):
+                            continue
+
+                        tmp_best = value_check
+                        best_tmp_current_pt = neighbour
+                    else:
+                        continue
+
+                if tmp_best < best:
+                    """
+                    UPDATE RESULT + TABU LIST
+                    """
+                    transitions_abs = compare_solution(current_pt, best_tmp_current_pt)
+                    tabu_list.extend(transitions_abs)
+                    for index in range(0, len(tabu_list) - tabu_size):
+                        tabu_list.pop(0)
+
+                    current_pt = best_tmp_current_pt
+                    best = tmp_best
+                    res.append(best)
+                else:
+                    """
+                    MERGE LAYER NEIGHBOURS
+                    """
+                    neighbours_3 = self.merge_layer_neighbourhood(tmp_current_pt)
+                    # neighbours.extend(self.swap_layer_neighborhood(tmp_current_pt))
+                    # neighbours.extend(self.merge_layer_neighbourhood(tmp_current_pt))
+                    for neighbour in neighbours_3:
+                        value_check = self.calculate_solution_value(neighbour)
+                        if value_check < tmp_best:
+                            transitions_abs = compare_solution(current_pt, neighbour)
+                            if len(transitions_abs) > tabu_size:
+                                # transitions_abs = list(range(0, n))
+                                trans_list = list(range(0, n))
+                                for tmp_index in transitions_abs:
+                                    trans_list.remove(tmp_index)
+                                transitions_abs = trans_list
+                            check_list = []
+                            check_list.extend(tabu_list)
+                            check_list.extend(transitions_abs)
+                            check_list = set(check_list)
+                            if len(check_list) < (len(transitions_abs) + len(tabu_list)):
+                                continue
+
+                            tmp_best = value_check
+                            best_tmp_current_pt = neighbour
+                        else:
+                            continue
+
+                    if tmp_best < best:
+                        """
+                        UPDATE RESULT + TABU LIST
+                        """
+                        transitions_abs = compare_solution(current_pt, best_tmp_current_pt)
+                        if len(transitions_abs) > tabu_size:
+                            # transitions_abs = list(range(0, n))
+                            trans_list = list(range(0, n))
+                            for tmp_index in transitions_abs:
+                                trans_list.remove(tmp_index)
+                            transitions_abs = trans_list
+                        tabu_list.extend(transitions_abs)
+                        for index in range(0, len(tabu_list) - tabu_size):
+                            tabu_list.pop(0)
+
+                        current_pt = best_tmp_current_pt
+                        best = tmp_best
+                        res.append(best)
+                    else:
+                        stable += 1
+
+                        if stable < stable_limit:
+                            tmp_neighbour = neighbours_1
+                            tmp_neighbour.extend(neighbours_2)
+                            tmp_neighbour.extend(neighbours_3)
+                            aspiration_list = []
+                            aspiration_list_value = []
+                            for neighbour in tmp_neighbour:
+                                value_check = self.calculate_solution_value(neighbour)
+                                if value_check > tmp_best:
+                                    aspiration_list_value.append(value_check)
+                                    aspiration_list.append(neighbour)
+
+                            aspiration_criterion = aspiration_list[
+                                aspiration_list_value.index(min(aspiration_list_value))]
+
+                            current_pt = aspiration_criterion
+                            best = min(aspiration_list_value)
+
+                            """
+                            SHOULD I UPDATE THE TABU_LIST ???
+                            """
+
+                            res.append(best)
+                        else:
+                            stable = 0
+                            tabu_list = []
+
+        return min(res)
+
+    def tabu_search_v2(self):
+        """
+            Use Tabu search technique to calculate the best solution.
+            This version will update the tabu list when meet the first neighbour of current neighbour type which
+            is better than the current best solution.
+            :return: integer which depict the best solution
+            """
+
+        def compare_solution(sol_1, sol_2):
+            """
+            Compare 2 solution and point out the difference between them (the positions of the first solution
+            which have different value compared to the second one).
+            This can be described as transition abstraction
+            :return: list of integers (list of transition abstraction)
+            """
+            n_1 = len(sol_1)
+            n_2 = len(sol_2)
+            ret = []
+            if n_1 != n_2:
+                return ret
+
+            for index in range(0, n_1):
+                if sol_1[index] != sol_2[index]:
+                    ret.append(index)
+            return ret
+
+        n = self.inp["n"]
+
+        n_iterations = 200
+
+        # Create a tabu list with fixed size
+        tabu_size = int(n / 2)
+        tabu_list = []
+        res = []
+
+        start_pt = utils.get_random_solution(n)
+        current_pt = start_pt
+        best = self.calculate_solution_value(start_pt)
+        stable = 0  # stable index
+        stable_limit = 5  # limit of stable index
+        for i in range(0, n_iterations):
+            tmp_best = best
+            tmp_current_pt = current_pt
+            best_tmp_current_pt = current_pt
+
+            """
+            NEIGHBOURS INI
+            """
+            neighbours_3 = self.change_layer_neighborhood(tmp_current_pt)
+            neighbours_3.extend(self.swap_layer_neighborhood(tmp_current_pt))
+            neighbours_3.extend(self.merge_layer_neighbourhood(tmp_current_pt))
+            for neighbour in neighbours_3:
+                value_check = self.calculate_solution_value(neighbour)
+                if value_check < tmp_best:
+                    transitions_abs = compare_solution(current_pt, neighbour)
+                    if len(transitions_abs) > tabu_size:
+                        # transitions_abs = list(range(0, n))
+                        trans_list = list(range(0, n))
+                        for tmp_index in transitions_abs:
+                            trans_list.remove(tmp_index)
+                        transitions_abs = trans_list
+                    check_list = []
+                    check_list.extend(tabu_list)
+                    check_list.extend(transitions_abs)
+                    check_list = set(check_list)
+                    if len(check_list) < (len(transitions_abs) + len(tabu_list)):
+                        continue
+
+                    tmp_best = value_check
+                    best_tmp_current_pt = neighbour
+                else:
+                    continue
+
+            if tmp_best < best:
+                """
+                UPDATE RESULT + TABU LIST
+                """
+                transitions_abs = compare_solution(current_pt, best_tmp_current_pt)
+                if len(transitions_abs) > tabu_size:
+                    # transitions_abs = list(range(0, n))
+                    trans_list = list(range(0, n))
+                    for tmp_index in transitions_abs:
+                        trans_list.remove(tmp_index)
+                    transitions_abs = trans_list
+                tabu_list.extend(transitions_abs)
+                for index in range(0, len(tabu_list) - tabu_size):
+                    tabu_list.pop(0)
+
+                current_pt = best_tmp_current_pt
+                best = tmp_best
+                res.append(best)
+            else:
+                stable += 1
+
+                if stable < stable_limit:
+                    tmp_neighbour = neighbours_3
+                    aspiration_list = []
+                    aspiration_list_value = []
+                    for neighbour in tmp_neighbour:
+                        value_check = self.calculate_solution_value(neighbour)
+                        if value_check > tmp_best:
+                            aspiration_list_value.append(value_check)
+                            aspiration_list.append(neighbour)
+
+                    aspiration_criterion = aspiration_list[
+                        aspiration_list_value.index(min(aspiration_list_value))]
+
+                    current_pt = aspiration_criterion
+                    best = min(aspiration_list_value)
+
+                    """
+                    SHOULD I UPDATE THE TABU_LIST ???
+                    """
+
+                    res.append(best)
+                else:
+                    stable = 0
+                    tabu_list = []
+
+        return min(res)
+
 
 if __name__ == '__main__':
-    ls = LocalSearch("U", "21")
-    start_time = time.time()
-    print(ls.iterated_local_search())
-    end_time = time.time()
-    print("End in ", end_time - start_time)
-
-    # ls = LocalSearch("U", "18")
-    # sol = utils.get_random_solution(size=ls.inp["n"])
-    # print(len(ls.merge_layer_neighbourhood(sol)))
+    ls = LocalSearch("U", "20")
+    for i in range(0, 100):
+        start_time = time.time()
+        print("RES" + "%s: %.2f" % (str(i), ls.tabu_search_v2()))
+        end_time = time.time()
+        print("End in %.2f" % (end_time - start_time))
+        print("------------------------------------------")

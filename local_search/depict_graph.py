@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from local_search_v2 import LocalSearch
+from local_search import LocalSearch
 import utils.utilities as utils
 import numpy as np
 

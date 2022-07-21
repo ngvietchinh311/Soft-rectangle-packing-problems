@@ -36,13 +36,6 @@ def get_copy_version(current_solution):
     res = []
     n = len(current_solution)
 
-    # for k in range(0, n):
-    #     tmp_res = []
-    #     for i in range(0, n):
-    #         tmp_res.append(current_solution[k][i])
-    #     res.append(tmp_res)
-    # return res
-
     for i in range(0, n):
         tmp_val = current_solution[i]
         res.append(tmp_val)
@@ -60,15 +53,6 @@ def get_random_solution(size):
     pos = []
     for i in range(0, size):
         pos.append(random.randint(0, size - 1))
-
-    # for k in range(0, size):
-    #     tmp_res = []
-    #     for i in range(0, size):
-    #         tmp_res.append(0)
-    #     res.append(tmp_res)
-    #
-    # for i in range(0, size):
-    #     res[pos[i]][i] = 1
 
     return pos
 
