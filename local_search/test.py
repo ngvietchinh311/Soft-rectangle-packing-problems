@@ -3,6 +3,7 @@ import sys
 from pytube import YouTube, Channel
 import itertools
 import utils.utilities as utils
+from local_search import LocalSearch
 
 
 def get_copy_version(current_solution):
@@ -362,11 +363,13 @@ def merge_layer_neighbourhood_v2(current_solution):
 #         print(val)
 # print(len(nei))
 
-import math
-from random import seed
-from random import random
+s = [0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
 
-seed(1)
+ls = LocalSearch("U", "03")
+neis = ls.change_layer_neighborhood(s)
+neis.extend(ls.swap_layer_neighborhood(s))
+neis.extend(ls.merge_layer_neighbourhood(s))
 
-for i in range(50):
-    print(math.floor(random() * 50))
+for nei in neis:
+    print(ls.calculate_solution_value(nei))
+

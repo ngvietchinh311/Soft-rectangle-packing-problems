@@ -229,15 +229,6 @@ class LocalSearch:
                     else:
                         continue
 
-                # neighbours = self.split_layer_neighbourhood(tmp_current_pt)
-                # for neighbour in neighbours:
-                #     value_check = self.calculate_solution_value(neighbour)
-                #     if value_check < tmp_best:
-                #         tmp_best = value_check
-                #         best_tmp_current_pt = neighbour
-                #     else:
-                #         continue
-
                 neighbours = self.merge_layer_neighbourhood(tmp_current_pt)
                 for neighbour in neighbours:
                     value_check = self.calculate_solution_value(neighbour)
@@ -531,7 +522,7 @@ class LocalSearch:
 
         n = self.inp["n"]
 
-        n_iterations = 200
+        n_iterations = 40
 
         # Create a tabu list with fixed size
         tabu_size = int(n / 2)
@@ -612,10 +603,6 @@ class LocalSearch:
 
                     current_pt = aspiration_criterion
                     best = min(aspiration_list_value)
-
-                    """
-                    SHOULD I UPDATE THE TABU_LIST ???
-                    """
 
                     res.append(best)
                 else:
