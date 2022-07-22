@@ -522,7 +522,7 @@ class LocalSearch:
 
         n = self.inp["n"]
 
-        n_iterations = 40
+        n_iterations = 100
 
         # Create a tabu list with fixed size
         tabu_size = int(n / 2)
@@ -592,17 +592,21 @@ class LocalSearch:
                     tmp_neighbour = neighbours_3
                     aspiration_list = []
                     aspiration_list_value = []
+
                     for neighbour in tmp_neighbour:
                         value_check = self.calculate_solution_value(neighbour)
-                        if value_check > tmp_best:
+                        if 20 >= value_check - tmp_best > 0:
                             aspiration_list_value.append(value_check)
                             aspiration_list.append(neighbour)
 
-                    aspiration_criterion = aspiration_list[
-                        aspiration_list_value.index(min(aspiration_list_value))]
+                    try:
+                        aspiration_criterion = aspiration_list[
+                            aspiration_list_value.index(min(aspiration_list_value))]
 
-                    current_pt = aspiration_criterion
-                    best = min(aspiration_list_value)
+                        current_pt = aspiration_criterion
+                        best = min(aspiration_list_value)
+                    except:
+                        pass
 
                     res.append(best)
                 else:
@@ -616,7 +620,7 @@ if __name__ == '__main__':
     ls = LocalSearch("U", "20")
     for i in range(0, 100):
         start_time = time.time()
-        print("RES" + "%s: %.2f" % (str(i), ls.tabu_search_v2()))
+        print("RES" + "%s: %.2f" % (str(i), ls.iterated_local_search()))
         end_time = time.time()
         print("End in %.2f" % (end_time - start_time))
         print("------------------------------------------")

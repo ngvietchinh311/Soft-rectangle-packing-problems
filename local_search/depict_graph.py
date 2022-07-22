@@ -367,14 +367,8 @@ def get_data_iter_res_tabu_search_v2(class_name, class_num):
                         aspiration_list.append(neighbour)
 
                 try:
-                    print("CÂCCACACA")
                     aspiration_criterion = aspiration_list[
                         aspiration_list_value.index(min(aspiration_list_value))]
-
-                    # print(tmp_best, ": ", min(aspiration_list_value))
-                    # print(current_pt)
-                    # print(self.calculate_solution_value(current_pt))
-                    # print(aspiration_list_value)
 
                     current_pt = aspiration_criterion
                     best = min(aspiration_list_value)
@@ -394,7 +388,7 @@ def get_data_iter_res_tabu_search_v2(class_name, class_num):
 def depict_tabu_search():
     sns.set_theme(style="darkgrid")
 
-    res = get_data_iter_res_tabu_search_v2("U", "01")
+    res = get_data_iter_res_tabu_search_v2("U", "20")
 
     sns.lineplot(list(range(1, len(res) + 1)), res)
     plt.show()

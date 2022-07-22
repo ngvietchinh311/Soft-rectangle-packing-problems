@@ -35,6 +35,8 @@ L1 = 10
 L2 = 15
 a = [26, 12, 8]
 x = [0, 1, 1]
+
+
 # x = [1, 2, 1, 1, 3]
 
 
@@ -107,6 +109,7 @@ def get_random_solution():
         res[pos[i]][i] = 1
 
     return res
+
 
 # def get_recs_layers(current_solution):
 #     res = {}
@@ -252,75 +255,77 @@ def swap_layer_neighborhood_v2(current_solution):
 
     return res
 
+
 def split_layer_neighbourhood(current_solution):
-        """
-        Find all neighbors of current solution by splitting layer into 2 smaller layers
-        :param current_solution:
-        :return: list of solutions
-        """
-        global n
+    """
+    Find all neighbors of current solution by splitting layer into 2 smaller layers
+    :param current_solution:
+    :return: list of solutions
+    """
+    global n
 
-        layer_dict = {}
-        res = []
+    layer_dict = {}
+    res = []
 
-        for k in range(0, n):
-            layer_dict.update({k: []})
+    for k in range(0, n):
+        layer_dict.update({k: []})
 
-        for i in range(0, n):
-            layer_dict[current_solution[i]].append(i)
+    for i in range(0, n):
+        layer_dict[current_solution[i]].append(i)
 
-        blank_layer = None
-        for k in range(0, n):
-            if len(layer_dict[k]) == 0:
-                blank_layer = k
-                break
-        if blank_layer is None:
-            return []
+    blank_layer = None
+    for k in range(0, n):
+        if len(layer_dict[k]) == 0:
+            blank_layer = k
+            break
+    if blank_layer is None:
+        return []
 
-        for k in range(0, n):
-            if len(layer_dict[k]) < 2:
-                continue
-            else:
-                for L in range(0, len(layer_dict[k]) + 1):
-                    for subset in itertools.combinations(layer_dict[k], L):
-                        if len(subset) > len(layer_dict[k]) / 2 or len(subset) == 0:
-                            continue
+    for k in range(0, n):
+        if len(layer_dict[k]) < 2:
+            continue
+        else:
+            for L in range(0, len(layer_dict[k]) + 1):
+                for subset in itertools.combinations(layer_dict[k], L):
+                    if len(subset) > len(layer_dict[k]) / 2 or len(subset) == 0:
+                        continue
 
-                        replaced_list = list(subset)
-                        tmp_x = utils.get_copy_version(current_solution)
-                        for tmp_var in replaced_list:
-                            tmp_x[tmp_var] = blank_layer
-                        res.append(tmp_x)
+                    replaced_list = list(subset)
+                    tmp_x = utils.get_copy_version(current_solution)
+                    for tmp_var in replaced_list:
+                        tmp_x[tmp_var] = blank_layer
+                    res.append(tmp_x)
 
-        return res
+    return res
+
 
 def merge_layer_neighbourhood_v2(current_solution):
-        global n
-        res = []
+    global n
+    res = []
 
-        layer_dict = {}
+    layer_dict = {}
 
-        for k in range(0, n):
-            layer_dict.update({k: []})
+    for k in range(0, n):
+        layer_dict.update({k: []})
 
-        for i in range(0, n):
-            layer_dict[current_solution[i]].append(i)
+    for i in range(0, n):
+        layer_dict[current_solution[i]].append(i)
 
-        for k in range(0, n):
-            if len(layer_dict[k]) == 0:
+    for k in range(0, n):
+        if len(layer_dict[k]) == 0:
+            continue
+        merge_layers = list(range(0, n))
+        merge_layers.remove(k)
+        for tmp_layer in merge_layers:
+            if len(layer_dict[tmp_layer]) == 0:
                 continue
-            merge_layers = list(range(0, n))
-            merge_layers.remove(k)
-            for tmp_layer in merge_layers:
-                if len(layer_dict[tmp_layer]) == 0:
-                    continue
-                print(tmp_layer)
-                tmp_x = utils.get_copy_version(current_solution)
-                for i in layer_dict[tmp_layer]:
-                    tmp_x[i] = k
-                res.append(tmp_x)
+            print(tmp_layer)
+            tmp_x = utils.get_copy_version(current_solution)
+            for i in layer_dict[tmp_layer]:
+                tmp_x[i] = k
+            res.append(tmp_x)
 
-        return res
+    return res
 
 
 # res = merge_layer_neighbourhood_v2(x)
@@ -372,4 +377,3 @@ neis.extend(ls.merge_layer_neighbourhood(s))
 
 for nei in neis:
     print(ls.calculate_solution_value(nei))
-
