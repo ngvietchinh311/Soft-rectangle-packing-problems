@@ -20,73 +20,83 @@ def get_correlation_between_number_of_iterations_and_the_results(class_name: str
     n = ls.inp["n"]
 
     res = []
-    y = []
-    x = []
 
-    start_pt = utils.get_random_solution(n)
-    current_pt = start_pt
-    best = ls.calculate_solution_value(start_pt)
+    for start in range(0, n_restarts):
+        start_pt = utils.get_random_solution(n)
+        current_pt = start_pt
+        best = ls.calculate_solution_value(start_pt)
 
-    for i in range(0, n_iterations):
-        tmp_best = best
-        tmp_current_pt = current_pt
-        best_tmp_current_pt = current_pt
+        res.append(best)
 
-        neighbours = ls.change_layer_neighborhood(tmp_current_pt)
-        neighbours.extend(ls.swap_layer_neighborhood(tmp_current_pt))
-        neighbours.extend(ls.merge_layer_neighbourhood(tmp_current_pt))
-        for neighbour in neighbours:
-            value_check = ls.calculate_solution_value(neighbour)
-            if value_check < tmp_best:
-                tmp_best = value_check
-                best_tmp_current_pt = neighbour
+        for i in range(0, n_iterations):
+            tmp_best = best
+            tmp_current_pt = current_pt
+            best_tmp_current_pt = current_pt
+
+            neighbours = ls.change_layer_neighborhood(tmp_current_pt)
+            neighbours.extend(ls.swap_layer_neighborhood(tmp_current_pt))
+            neighbours.extend(ls.merge_layer_neighbourhood(tmp_current_pt))
+            for neighbour in neighbours:
+                value_check = ls.calculate_solution_value(neighbour)
+                if value_check < tmp_best:
+                    tmp_best = value_check
+                    best_tmp_current_pt = neighbour
+                else:
+                    continue
+
+            if tmp_best < best:
+                current_pt = best_tmp_current_pt
+                best = tmp_best
             else:
-                continue
+                break
 
-        x.append(i)
-        y.append(tmp_best)
+            res.append(best)
 
-        if tmp_best < best:
-            current_pt = best_tmp_current_pt
-            best = tmp_best
-        else:
-            break
-
-    res.append(best)
-
-    return [x, y]
+    return res
 
 
-def depict_correlation_between_number_of_iteration_and_the_results(class_name, class_num, n_iterations=50, num_lines=3):
+def depict_correlation_between_number_of_iteration_and_the_results(class_name, class_num, n_iterations=50, num_lines=3,
+                                                                   n_restarts=5):
     """
     Depict the information get from running the ITERATED LOCAL SEARCH method as a line graph
     :param class_name: instance class's name
     :param class_num: number of data instance equivalent to the class
     :param n_iterations: Number of iterations (DEFAULT VALUE: 1)
-    :param num_lines: number of linegraphs want to depict (DEFAULT VALUE: 3)
+    :param num_lines: number of line graphs want to depict (DEFAULT VALUE: 3)
+    :param n_restarts: number of restarts
     """
 
-    if num_lines == 1:
-        pass
-    else:
-        figure, axis = plt.subplots(1, num_lines)
-        plt.subplots_adjust(left=0.1)
+    # if num_lines == 1:
+    #     pass
+    # else:
+    #     figure, axis = plt.subplots(1, num_lines)
+    #     plt.subplots_adjust(left=0.1)
+    #
+    #     for i in range(0, num_lines):
+    #         data = get_correlation_between_number_of_iterations_and_the_results(class_name=class_name,
+    #                                                                             class_num=class_num,
+    #                                                                             n_iterations=n_iterations,
+    #                                                                             n_restarts=n_restarts)
+    #
+    #         x = data[0]
+    #         y = data[1]
+    #
+    #         axis[i].plot(x, y)
+    #
+    #     plt.show()
 
-        for i in range(0, num_lines):
-            data = get_correlation_between_number_of_iterations_and_the_results(class_name=class_name,
-                                                                                class_num=class_num,
-                                                                                n_iterations=n_iterations)
+    sns.set_theme(style="darkgrid")
 
-            x = data[0]
-            y = data[1]
+    res = get_correlation_between_number_of_iterations_and_the_results(class_name=class_name,
+                                                                       class_num=class_num,
+                                                                       n_iterations=n_iterations,
+                                                                       n_restarts=n_restarts)
 
-            axis[i].plot(x, y)
-
-        plt.show()
+    sns.lineplot(list(range(1, len(res) + 1)), res)
+    plt.show()
 
 
 def get_data_iter_res_tabu_search(class_name, class_num):
-
     def compare_solution(sol_1, sol_2):
         """
         Compare 2 solution and point out the difference between them (the positions of the first solution
@@ -364,7 +374,7 @@ def get_data_iter_res_tabu_search_v2(class_name, class_num):
 
                 for neighbour in tmp_neighbour:
                     value_check = self.calculate_solution_value(neighbour)
-                    if 20 >= value_check - tmp_best > 7:
+                    if 20 >= value_check - tmp_best > 1:
                         aspiration_list_value.append(value_check)
                         aspiration_list.append(neighbour)
 
@@ -387,16 +397,15 @@ def get_data_iter_res_tabu_search_v2(class_name, class_num):
     return res
 
 
-def depict_tabu_search():
+def depict_tabu_search(class_name, class_num):
     sns.set_theme(style="darkgrid")
 
-    res = get_data_iter_res_tabu_search_v2("MN", "16")
+    res = get_data_iter_res_tabu_search_v2(class_name, class_num)
 
     sns.lineplot(list(range(1, len(res) + 1)), res)
     plt.show()
 
 
-depict_correlation_between_number_of_iteration_and_the_results('MN', '15', n_iterations=50, num_lines=2)
+# depict_correlation_between_number_of_iteration_and_the_results('MN', '15', n_iterations=50, num_lines=2)
 
-# depict_tabu_search()
-
+depict_tabu_search("MN", "15")

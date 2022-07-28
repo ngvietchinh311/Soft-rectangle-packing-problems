@@ -272,8 +272,8 @@ class LocalSearch:
                 best_tmp_current_pt = current_pt
 
                 neighbours = self.change_layer_neighborhood(tmp_current_pt)
-                neighbours.extend(self.swap_layer_neighborhood(tmp_current_pt))
-                neighbours.extend(self.merge_layer_neighbourhood(tmp_current_pt))
+                # neighbours.extend(self.swap_layer_neighborhood(tmp_current_pt))
+                # neighbours.extend(self.merge_layer_neighbourhood(tmp_current_pt))
                 for neighbour in neighbours:
                     value_check = self.calculate_solution_value(neighbour)
                     if value_check < tmp_best:
@@ -286,7 +286,7 @@ class LocalSearch:
                     current_pt = best_tmp_current_pt
                     best = tmp_best
                 else:
-                    neighbours = self.split_layer_neighbourhood(tmp_current_pt)
+                    neighbours = self.swap_layer_neighborhood(tmp_current_pt)
                     for neighbour in neighbours:
                         value_check = self.calculate_solution_value(neighbour)
                         if value_check < tmp_best:
@@ -298,6 +298,21 @@ class LocalSearch:
                     if tmp_best < best:
                         current_pt = best_tmp_current_pt
                         best = tmp_best
+                    else:
+                        neighbours = self.merge_layer_neighbourhood(tmp_current_pt)
+                        for neighbour in neighbours:
+                            value_check = self.calculate_solution_value(neighbour)
+                            if value_check < tmp_best:
+                                tmp_best = value_check
+                                best_tmp_current_pt = neighbour
+                            else:
+                                continue
+
+                        if tmp_best < best:
+                            current_pt = best_tmp_current_pt
+                            best = tmp_best
+                        else:
+                            break
 
             if best < res_best:
                 res_best = best
@@ -420,8 +435,6 @@ class LocalSearch:
                     MERGE LAYER NEIGHBOURS
                     """
                     neighbours_3 = self.merge_layer_neighbourhood(tmp_current_pt)
-                    # neighbours.extend(self.swap_layer_neighborhood(tmp_current_pt))
-                    # neighbours.extend(self.merge_layer_neighbourhood(tmp_current_pt))
                     for neighbour in neighbours_3:
                         value_check = self.calculate_solution_value(neighbour)
                         if value_check < tmp_best:
