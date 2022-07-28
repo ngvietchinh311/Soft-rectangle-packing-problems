@@ -4,13 +4,15 @@ from local_search import LocalSearch
 import utils.utilities as utils
 
 
-def get_correlation_between_number_of_iterations_and_the_results(class_name: str, class_num: str, n_iterations=50):
+def get_correlation_between_number_of_iterations_and_the_results(class_name: str, class_num: str, n_iterations=50,
+                                                                 n_restarts=5):
     """
     Get the information needed to create a graph for ITERATED LOCAL SEARCH to depict the correlation between
     number of iterations and the result
     :param class_name: instance class
     :param class_num: number of instance equivalent to the class
     :param n_iterations: number of iterations you want to execute. Default value: 50
+    :param n_restarts: Number of restarts
     :return: list of 2 lists (x_axis + y_axis list)
     """
     ls = LocalSearch(class_name, class_num)
@@ -362,7 +364,7 @@ def get_data_iter_res_tabu_search_v2(class_name, class_num):
 
                 for neighbour in tmp_neighbour:
                     value_check = self.calculate_solution_value(neighbour)
-                    if 20 >= value_check - tmp_best > 0:
+                    if 20 >= value_check - tmp_best > 7:
                         aspiration_list_value.append(value_check)
                         aspiration_list.append(neighbour)
 
@@ -388,13 +390,13 @@ def get_data_iter_res_tabu_search_v2(class_name, class_num):
 def depict_tabu_search():
     sns.set_theme(style="darkgrid")
 
-    res = get_data_iter_res_tabu_search_v2("U", "20")
+    res = get_data_iter_res_tabu_search_v2("MN", "16")
 
     sns.lineplot(list(range(1, len(res) + 1)), res)
     plt.show()
 
 
-# depict_correlation_between_number_of_iteration_and_the_results('MN', '01', n_iterations=30, num_lines=5)
+depict_correlation_between_number_of_iteration_and_the_results('MN', '15', n_iterations=50, num_lines=2)
 
-depict_tabu_search()
+# depict_tabu_search()
 
