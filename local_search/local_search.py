@@ -250,30 +250,40 @@ class LocalSearch:
 
         return min(res)
 
-    def iterated_local_search_VNS(self):
+    def VNS(self):
         """
         Use VNS(Variable Neighborhood Search) technique to calculate the best solution
         :return: integer which depict the best solution
         """
         n = self.inp["n"]
 
-        n_restarts = 1
-        n_iterations = 100
+        n_iterations = 500
 
         res = []
         res_best = 2 * (self.inp["L1"] + self.inp["L2"])
-        for turn in range(0, n_restarts):
-            start_pt = utils.get_random_solution(n)
-            current_pt = start_pt
-            best = self.calculate_solution_value(start_pt)
-            for i in range(0, n_iterations):
-                tmp_best = best
-                tmp_current_pt = current_pt
-                best_tmp_current_pt = current_pt
 
-                neighbours = self.change_layer_neighborhood(tmp_current_pt)
-                # neighbours.extend(self.swap_layer_neighborhood(tmp_current_pt))
-                # neighbours.extend(self.merge_layer_neighbourhood(tmp_current_pt))
+        start_pt = utils.get_random_solution(n)
+        current_pt = start_pt
+        best = self.calculate_solution_value(start_pt)
+        for i in range(0, n_iterations):
+            tmp_best = best
+            tmp_current_pt = current_pt
+            best_tmp_current_pt = current_pt
+
+            neighbours = self.change_layer_neighborhood(tmp_current_pt)
+            for neighbour in neighbours:
+                value_check = self.calculate_solution_value(neighbour)
+                if value_check < tmp_best:
+                    tmp_best = value_check
+                    best_tmp_current_pt = neighbour
+                else:
+                    continue
+
+            if tmp_best < best:
+                current_pt = best_tmp_current_pt
+                best = tmp_best
+            else:
+                neighbours = self.swap_layer_neighborhood(tmp_current_pt)
                 for neighbour in neighbours:
                     value_check = self.calculate_solution_value(neighbour)
                     if value_check < tmp_best:
@@ -286,7 +296,7 @@ class LocalSearch:
                     current_pt = best_tmp_current_pt
                     best = tmp_best
                 else:
-                    neighbours = self.swap_layer_neighborhood(tmp_current_pt)
+                    neighbours = self.merge_layer_neighbourhood(tmp_current_pt)
                     for neighbour in neighbours:
                         value_check = self.calculate_solution_value(neighbour)
                         if value_check < tmp_best:
@@ -299,24 +309,11 @@ class LocalSearch:
                         current_pt = best_tmp_current_pt
                         best = tmp_best
                     else:
-                        neighbours = self.merge_layer_neighbourhood(tmp_current_pt)
-                        for neighbour in neighbours:
-                            value_check = self.calculate_solution_value(neighbour)
-                            if value_check < tmp_best:
-                                tmp_best = value_check
-                                best_tmp_current_pt = neighbour
-                            else:
-                                continue
+                        break
 
-                        if tmp_best < best:
-                            current_pt = best_tmp_current_pt
-                            best = tmp_best
-                        else:
-                            break
-
-            if best < res_best:
-                res_best = best
-            res.append(best)
+        if best < res_best:
+            res_best = best
+        res.append(best)
 
         return min(res)
 
@@ -631,9 +628,9 @@ class LocalSearch:
 
 if __name__ == '__main__':
     ls = LocalSearch("U", "20")
-    for i in range(0, 100):
+    for k in range(0, 10):
         start_time = time.time()
-        print("RES" + "%s: %.2f" % (str(i), ls.iterated_local_search()))
+        print("RES" + "%s: %.2f" % (str(k), ls.VNS()))
         end_time = time.time()
         print("End in %.2f" % (end_time - start_time))
         print("------------------------------------------")

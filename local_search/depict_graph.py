@@ -406,6 +406,6 @@ def depict_tabu_search(class_name, class_num):
     plt.show()
 
 
-# depict_correlation_between_number_of_iteration_and_the_results('MN', '15', n_iterations=50, num_lines=2)
+depict_correlation_between_number_of_iteration_and_the_results('U', '14', n_iterations=50, num_lines=1, n_restarts=4)
 
-depict_tabu_search("MN", "15")
+# depict_tabu_search("MN", "15")
