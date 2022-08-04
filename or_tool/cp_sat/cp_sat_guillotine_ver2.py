@@ -113,6 +113,12 @@ for k in range(0, n):
     for i in range(0, n):
         model.Add(2 * a[i] * x[i][k] + 2 * s_l2[k] <= s_p_l2[k])
 
+
+"""
+CONSTRAINTS FOR PROBLEM COL-ASPECT-RATIO
+"""
+
+
 model.Minimize(objective)
 
 solver = cp_model.CpSolver()

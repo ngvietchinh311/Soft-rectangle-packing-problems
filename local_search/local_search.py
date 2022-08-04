@@ -198,7 +198,7 @@ class LocalSearch:
         n = self.inp["n"]
 
         n_restarts = 5
-        n_iterations = 5000
+        n_iterations = 120
 
         res = []
         res_best = 2 * (self.inp["L1"] + self.inp["L2"])
@@ -208,28 +208,12 @@ class LocalSearch:
             best = self.calculate_solution_value(start_pt)
             for i in range(0, n_iterations):
                 tmp_best = best
-                tmp_current_pt = current_pt
+                # tmp_current_pt = current_pt
                 best_tmp_current_pt = current_pt
 
-                neighbours = self.change_layer_neighborhood(tmp_current_pt)
-                for neighbour in neighbours:
-                    value_check = self.calculate_solution_value(neighbour)
-                    if value_check < tmp_best:
-                        tmp_best = value_check
-                        best_tmp_current_pt = neighbour
-                    else:
-                        continue
-
-                neighbours = self.swap_layer_neighborhood(tmp_current_pt)
-                for neighbour in neighbours:
-                    value_check = self.calculate_solution_value(neighbour)
-                    if value_check < tmp_best:
-                        tmp_best = value_check
-                        best_tmp_current_pt = neighbour
-                    else:
-                        continue
-
-                neighbours = self.merge_layer_neighbourhood(tmp_current_pt)
+                neighbours = self.change_layer_neighborhood(best_tmp_current_pt)
+                neighbours.extend(self.swap_layer_neighborhood(best_tmp_current_pt))
+                neighbours.extend(self.merge_layer_neighbourhood(best_tmp_current_pt))
                 for neighbour in neighbours:
                     value_check = self.calculate_solution_value(neighbour)
                     if value_check < tmp_best:
@@ -246,9 +230,9 @@ class LocalSearch:
 
             if best < res_best:
                 res_best = best
-            res.append(best)
+            # res.append(best)
 
-        return min(res)
+        return res_best
 
     def VNS(self):
         """
@@ -260,7 +244,6 @@ class LocalSearch:
         n_iterations = 500
 
         res = []
-        res_best = 2 * (self.inp["L1"] + self.inp["L2"])
 
         start_pt = utils.get_random_solution(n)
         current_pt = start_pt
@@ -270,7 +253,7 @@ class LocalSearch:
             tmp_current_pt = current_pt
             best_tmp_current_pt = current_pt
 
-            neighbours = self.change_layer_neighborhood(tmp_current_pt)
+            neighbours = self.merge_layer_neighbourhood(tmp_current_pt)
             for neighbour in neighbours:
                 value_check = self.calculate_solution_value(neighbour)
                 if value_check < tmp_best:
@@ -296,7 +279,7 @@ class LocalSearch:
                     current_pt = best_tmp_current_pt
                     best = tmp_best
                 else:
-                    neighbours = self.merge_layer_neighbourhood(tmp_current_pt)
+                    neighbours = self.change_layer_neighborhood(tmp_current_pt)
                     for neighbour in neighbours:
                         value_check = self.calculate_solution_value(neighbour)
                         if value_check < tmp_best:
@@ -311,8 +294,6 @@ class LocalSearch:
                     else:
                         break
 
-        if best < res_best:
-            res_best = best
         res.append(best)
 
         return min(res)
@@ -627,7 +608,7 @@ class LocalSearch:
 
 
 if __name__ == '__main__':
-    ls = LocalSearch("U", "20")
+    ls = LocalSearch("U", "19")
     for k in range(0, 10):
         start_time = time.time()
         print("RES" + "%s: %.2f" % (str(k), ls.VNS()))

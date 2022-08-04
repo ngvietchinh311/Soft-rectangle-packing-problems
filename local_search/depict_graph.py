@@ -1,3 +1,5 @@
+import time
+
 import matplotlib.pyplot as plt
 import seaborn as sns
 from local_search import LocalSearch
@@ -406,6 +408,9 @@ def depict_tabu_search(class_name, class_num):
     plt.show()
 
 
-depict_correlation_between_number_of_iteration_and_the_results('U', '14', n_iterations=50, num_lines=1, n_restarts=4)
+for i in range(10, 22):
+    depict_correlation_between_number_of_iteration_and_the_results('MU', '17', n_iterations=50, num_lines=1,
+                                                                   n_restarts=4)
+    time.sleep(2)
 
 # depict_tabu_search("MN", "15")
